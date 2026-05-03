@@ -1,7 +1,7 @@
 # stl2fem
 
-Python-first tools for converting STL particle surfaces into tetrahedral FEM
-meshes, screening mesh quality, and estimating downstream Merrill.jl
+Python tools for converting STL particle surfaces into tetrahedral FEM
+meshes, screening mesh quality, and estimating downstream
 micromagnetic modeling cost.
 
 The package is being developed around the Nikolaisen2022 magnetite inclusion
@@ -14,14 +14,14 @@ STL files do not reliably store physical units. They store triangle vertex
 coordinates as plain numbers, so a coordinate like `22.88` only means `22.88`
 in the coordinate system chosen by the file creator.
 
-For Merrill.jl compatibility, `stl2fem` treats units explicitly:
+`stl2fem` treats units explicitly:
 
 - declare the input STL coordinate unit with `--input-unit` or
   `input_unit=`;
 - define the requested tetrahedron edge length in meters with
   `--target-edge-length-m` or `target_edge_length_m=`;
 - mesh in the STL's native coordinate scale for numerical convenience;
-- write a separate Merrill-ready `.msh` with coordinates scaled to meters.
+- write a separate `.msh` with coordinates scaled to meters.
 
 The Nikolaisen2022 metadata and coordinate magnitudes are micrometer-scale, so
 the examples use `input_unit="um"`. The default target edge length is
@@ -59,7 +59,7 @@ stl2fem nikolaisen-inventory \
 ```
 
 The default production run processes only Nikolaisen2022 Plag particles with
-metadata `EVSD < 1 um`, writes only Merrill-ready meter-scale `.msh` files, and
+metadata `EVSD < 1 um`, writes only meter-scale `.msh` files, and
 stores them under `data/Nikolaisen2022_merrill_msh`. Each STL conversion has a
 default per-mesh timeout so one difficult surface is reported in the CSV instead
 of blocking the whole batch. The production workflow also uses a pragmatic
@@ -111,7 +111,7 @@ The reported output includes the realized tetrahedron edge lengths
 `edge_length_min`, `edge_length_median`, `edge_length_p95`,
 `edge_length_max`, and their `_m` meter-scaled counterparts.
 
-For the Nikolaisen production workflow, generated Merrill meshes are written to
+For the Nikolaisen production workflow, generated meshes are written to
 `data/Nikolaisen2022_merrill_msh/` and reports are written to
 `data/Nikolaisen2022_merrill_msh/_reports/`.
 
