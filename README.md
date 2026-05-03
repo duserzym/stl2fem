@@ -6,7 +6,8 @@ micromagnetic modeling cost.
 
 The package is being developed around the Nikolaisen et al., 2022 magnetite inclusions in a sample from the Bushveld Complex
 dataset, but the core functions are generic STL-to-`.msh` helpers built on
-PyVista/VTK and Gmsh. The converted files can be found in branch [`Nikolaisen2022_stl2msh`](https://github.com/duserzym/stl2fem/tree/Nikolaisen2022_stl2msh)
+PyVista/VTK and Gmsh. The converted files can be found in branch [`Nikolaisen2022_stl2msh`](https://github.com/duserzym/stl2fem/tree/Nikolaisen2022_stl2msh). 
+The branch currently only contains the converted .msh files in nm units of all magnetite inclusions in Plag and those in the Opx are not converted yet. 
 
 - data citation: Nikolaisen, E. S., Harrison, R., Fabian, K., Church, N., McEnroe, S. A., Sørensen, B. E., & Tegner, C. (2022). Hysteresis parameters and magnetic anisotropy of silicate-hosted magnetite exsolutions. Geophysical Journal International. https://doi.org/10.1093/gji/ggac007
 
