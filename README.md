@@ -1,12 +1,14 @@
 # stl2fem
 
 Python tools for converting STL particle surfaces into tetrahedral FEM
-meshes, screening mesh quality, and estimating downstream
+meshes, screening mesh quality, brute-force fix the bad mesh, and estimating downstream
 micromagnetic modeling cost.
 
-The package is being developed around the Nikolaisen2022 magnetite inclusion
+The package is being developed around the Nikolaisen et al., 2022 magnetite inclusions in a sample from the Bushveld Complex
 dataset, but the core functions are generic STL-to-`.msh` helpers built on
-PyVista/VTK and Gmsh.
+PyVista/VTK and Gmsh. The converted files can be found in branch [`Nikolaisen2022_stl2msh`](https://github.com/duserzym/stl2fem/tree/Nikolaisen2022_stl2msh)
+
+- data citation: Nikolaisen, E. S., Harrison, R., Fabian, K., Church, N., McEnroe, S. A., Sørensen, B. E., & Tegner, C. (2022). Hysteresis parameters and magnetic anisotropy of silicate-hosted magnetite exsolutions. Geophysical Journal International. https://doi.org/10.1093/gji/ggac007
 
 ## Units
 
