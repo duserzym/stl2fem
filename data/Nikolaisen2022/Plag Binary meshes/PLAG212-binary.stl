@@ -1,0 +1,688 @@
+solid B-16-Plag.130
+facet normal 0 0 0
+outer loop
+vertex 20.015409 13.040265 7.199372
+vertex 19.994934 13.040265 7.199372
+vertex 20.015409 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.015409 13.061018 7.199372
+vertex 19.994934 13.040265 7.199372
+vertex 19.994934 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.035887 13.040265 7.199372
+vertex 20.015409 13.040265 7.199372
+vertex 20.035887 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.035887 13.061018 7.199372
+vertex 20.015409 13.040265 7.199372
+vertex 20.015409 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.056362 13.040265 7.199372
+vertex 20.035887 13.040265 7.199372
+vertex 20.056362 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.056362 13.061018 7.199372
+vertex 20.035887 13.040265 7.199372
+vertex 20.035887 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.076838 13.040265 7.199372
+vertex 20.056362 13.040265 7.199372
+vertex 20.076838 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.076838 13.061018 7.199372
+vertex 20.056362 13.040265 7.199372
+vertex 20.056362 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.097313 13.040265 7.199372
+vertex 20.076838 13.040265 7.199372
+vertex 20.097313 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.097313 13.061018 7.199372
+vertex 20.076838 13.040265 7.199372
+vertex 20.076838 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.117788 13.061018 7.199372
+vertex 20.097313 13.040265 7.199372
+vertex 20.097313 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.035887 13.061018 7.199372
+vertex 20.056362 13.081772 7.199372
+vertex 20.056362 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.056362 13.081772 7.199372
+vertex 20.076838 13.061018 7.199372
+vertex 20.056362 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 19.994934 13.040265 7.199372
+vertex 19.994934 13.061018 7.219372
+vertex 19.974459 13.061018 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 19.994934 13.040265 7.199372
+vertex 19.974459 13.061018 7.219372
+vertex 19.994934 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.015409 13.040265 7.199372
+vertex 19.994934 13.061018 7.219372
+vertex 19.994934 13.040265 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.015409 13.061018 7.219372
+vertex 19.994934 13.061018 7.219372
+vertex 20.015409 13.040265 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.035887 13.040265 7.199372
+vertex 20.015409 13.061018 7.219372
+vertex 20.015409 13.040265 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.035887 13.061018 7.219372
+vertex 20.015409 13.061018 7.219372
+vertex 20.035887 13.040265 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.056362 13.040265 7.199372
+vertex 20.035887 13.061018 7.219372
+vertex 20.035887 13.040265 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.056362 13.061018 7.219372
+vertex 20.035887 13.061018 7.219372
+vertex 20.056362 13.040265 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.076838 13.040265 7.199372
+vertex 20.056362 13.061018 7.219372
+vertex 20.056362 13.040265 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.076838 13.061018 7.219372
+vertex 20.056362 13.061018 7.219372
+vertex 20.076838 13.040265 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.097313 13.040265 7.199372
+vertex 20.076838 13.061018 7.219372
+vertex 20.076838 13.040265 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.097313 13.061018 7.219372
+vertex 20.076838 13.061018 7.219372
+vertex 20.097313 13.040265 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.117788 13.061018 7.199372
+vertex 20.097313 13.061018 7.219372
+vertex 20.097313 13.040265 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 19.953983 13.061018 7.219372
+vertex 19.974459 13.081772 7.219372
+vertex 19.974459 13.061018 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 19.994934 13.061018 7.199372
+vertex 19.974459 13.061018 7.219372
+vertex 19.994934 13.081772 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 19.974459 13.061018 7.219372
+vertex 19.974459 13.081772 7.219372
+vertex 19.994934 13.081772 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 19.994934 13.061018 7.199372
+vertex 20.015409 13.081772 7.219372
+vertex 20.015409 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 19.994934 13.081772 7.219372
+vertex 20.015409 13.081772 7.219372
+vertex 19.994934 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.015409 13.061018 7.199372
+vertex 20.035887 13.081772 7.219372
+vertex 20.035887 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.015409 13.081772 7.219372
+vertex 20.035887 13.081772 7.219372
+vertex 20.015409 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.035887 13.061018 7.199372
+vertex 20.035887 13.081772 7.219372
+vertex 20.056362 13.081772 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.076838 13.061018 7.199372
+vertex 20.056362 13.081772 7.199372
+vertex 20.076838 13.081772 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.076838 13.061018 7.199372
+vertex 20.097313 13.081772 7.219372
+vertex 20.097313 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.076838 13.081772 7.219372
+vertex 20.097313 13.081772 7.219372
+vertex 20.076838 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.117788 13.081772 7.219372
+vertex 20.097313 13.061018 7.219372
+vertex 20.097313 13.081772 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.097313 13.081772 7.219372
+vertex 20.097313 13.061018 7.219372
+vertex 20.097313 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.097313 13.061018 7.199372
+vertex 20.097313 13.061018 7.219372
+vertex 20.117788 13.061018 7.199372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 19.994934 13.081772 7.219372
+vertex 20.015409 13.102525 7.219372
+vertex 20.015409 13.081772 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.035887 13.081772 7.219372
+vertex 20.015409 13.081772 7.219372
+vertex 20.035887 13.102525 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.035887 13.102525 7.219372
+vertex 20.015409 13.081772 7.219372
+vertex 20.015409 13.102525 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.056362 13.081772 7.199372
+vertex 20.035887 13.081772 7.219372
+vertex 20.056362 13.102525 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.035887 13.081772 7.219372
+vertex 20.035887 13.102525 7.219372
+vertex 20.056362 13.102525 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.056362 13.081772 7.199372
+vertex 20.056362 13.102525 7.219372
+vertex 20.076838 13.081772 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.056362 13.102525 7.219372
+vertex 20.076838 13.102525 7.219372
+vertex 20.076838 13.081772 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.097313 13.081772 7.219372
+vertex 20.076838 13.081772 7.219372
+vertex 20.097313 13.102525 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.097313 13.102525 7.219372
+vertex 20.076838 13.081772 7.219372
+vertex 20.076838 13.102525 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.097313 13.102525 7.219372
+vertex 20.117788 13.081772 7.219372
+vertex 20.097313 13.081772 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.015409 13.061018 7.239372
+vertex 19.994934 13.061018 7.219372
+vertex 20.015409 13.061018 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.035887 13.061018 7.219372
+vertex 20.035887 13.061018 7.239372
+vertex 20.015409 13.061018 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.015409 13.061018 7.219372
+vertex 20.035887 13.061018 7.239372
+vertex 20.015409 13.061018 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.056362 13.061018 7.219372
+vertex 20.056362 13.061018 7.239372
+vertex 20.035887 13.061018 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.035887 13.061018 7.219372
+vertex 20.056362 13.061018 7.239372
+vertex 20.035887 13.061018 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.076838 13.061018 7.219372
+vertex 20.076838 13.061018 7.239372
+vertex 20.056362 13.061018 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.056362 13.061018 7.219372
+vertex 20.076838 13.061018 7.239372
+vertex 20.056362 13.061018 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.097313 13.061018 7.219372
+vertex 20.097313 13.061018 7.239372
+vertex 20.076838 13.061018 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.076838 13.061018 7.219372
+vertex 20.097313 13.061018 7.239372
+vertex 20.076838 13.061018 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 19.974459 13.081772 7.239372
+vertex 19.953983 13.061018 7.219372
+vertex 19.974459 13.061018 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 19.974459 13.081772 7.239372
+vertex 19.974459 13.081772 7.219372
+vertex 19.953983 13.061018 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 19.994934 13.061018 7.219372
+vertex 19.974459 13.081772 7.239372
+vertex 19.974459 13.061018 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 19.994934 13.081772 7.239372
+vertex 19.974459 13.081772 7.239372
+vertex 19.994934 13.061018 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.015409 13.061018 7.239372
+vertex 19.994934 13.081772 7.239372
+vertex 19.994934 13.061018 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.117788 13.081772 7.219372
+vertex 20.097313 13.081772 7.239372
+vertex 20.097313 13.061018 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.097313 13.081772 7.239372
+vertex 20.097313 13.061018 7.239372
+vertex 20.097313 13.061018 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 19.994934 13.102525 7.239372
+vertex 19.994934 13.081772 7.219372
+vertex 19.974459 13.081772 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 19.994934 13.081772 7.219372
+vertex 19.974459 13.081772 7.219372
+vertex 19.974459 13.081772 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 19.994934 13.081772 7.219372
+vertex 19.994934 13.102525 7.239372
+vertex 20.015409 13.102525 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.097313 13.102525 7.219372
+vertex 20.076838 13.102525 7.239372
+vertex 20.097313 13.081772 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.117788 13.081772 7.219372
+vertex 20.097313 13.102525 7.219372
+vertex 20.097313 13.081772 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.015409 13.102525 7.219372
+vertex 19.994934 13.102525 7.239372
+vertex 20.015409 13.102525 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.035887 13.102525 7.219372
+vertex 20.015409 13.102525 7.219372
+vertex 20.035887 13.102525 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.015409 13.102525 7.219372
+vertex 20.015409 13.102525 7.239372
+vertex 20.035887 13.102525 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.056362 13.102525 7.219372
+vertex 20.035887 13.102525 7.219372
+vertex 20.056362 13.102525 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.035887 13.102525 7.219372
+vertex 20.035887 13.102525 7.239372
+vertex 20.056362 13.102525 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.076838 13.102525 7.219372
+vertex 20.056362 13.102525 7.219372
+vertex 20.076838 13.102525 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.056362 13.102525 7.219372
+vertex 20.056362 13.102525 7.239372
+vertex 20.076838 13.102525 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.076838 13.102525 7.239372
+vertex 20.097313 13.102525 7.219372
+vertex 20.076838 13.102525 7.219372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 19.994934 13.081772 7.239372
+vertex 20.015409 13.061018 7.239372
+vertex 20.015409 13.081772 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.035887 13.061018 7.239372
+vertex 20.035887 13.081772 7.239372
+vertex 20.015409 13.061018 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.035887 13.081772 7.239372
+vertex 20.015409 13.081772 7.239372
+vertex 20.015409 13.061018 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.056362 13.061018 7.239372
+vertex 20.056362 13.081772 7.239372
+vertex 20.035887 13.061018 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.056362 13.081772 7.239372
+vertex 20.035887 13.081772 7.239372
+vertex 20.035887 13.061018 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.076838 13.061018 7.239372
+vertex 20.076838 13.081772 7.239372
+vertex 20.056362 13.061018 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.076838 13.081772 7.239372
+vertex 20.056362 13.081772 7.239372
+vertex 20.056362 13.061018 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.097313 13.061018 7.239372
+vertex 20.097313 13.081772 7.239372
+vertex 20.076838 13.061018 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.097313 13.081772 7.239372
+vertex 20.076838 13.081772 7.239372
+vertex 20.076838 13.061018 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 19.994934 13.102525 7.239372
+vertex 19.974459 13.081772 7.239372
+vertex 19.994934 13.081772 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.015409 13.081772 7.239372
+vertex 20.015409 13.102525 7.239372
+vertex 19.994934 13.081772 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.015409 13.102525 7.239372
+vertex 19.994934 13.102525 7.239372
+vertex 19.994934 13.081772 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.035887 13.081772 7.239372
+vertex 20.035887 13.102525 7.239372
+vertex 20.015409 13.081772 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.035887 13.102525 7.239372
+vertex 20.015409 13.102525 7.239372
+vertex 20.015409 13.081772 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.056362 13.081772 7.239372
+vertex 20.056362 13.102525 7.239372
+vertex 20.035887 13.081772 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.056362 13.102525 7.239372
+vertex 20.035887 13.102525 7.239372
+vertex 20.035887 13.081772 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.076838 13.081772 7.239372
+vertex 20.076838 13.102525 7.239372
+vertex 20.056362 13.081772 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.076838 13.102525 7.239372
+vertex 20.056362 13.102525 7.239372
+vertex 20.056362 13.081772 7.239372
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 20.097313 13.081772 7.239372
+vertex 20.076838 13.102525 7.239372
+vertex 20.076838 13.081772 7.239372
+endloop
+endfacet
+endsolid B-16-Plag.130
