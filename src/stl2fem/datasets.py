@@ -23,6 +23,10 @@ NIKOLAISEN_PHASES = {
 }
 
 SIZE_BIN_LABELS = ("00_smallest", "01_small", "02_large", "03_largest")
+NIKOLAISEN_METADATA_FILES = {
+    "OPX": "OPX_stl_B16.csv",
+    "PLAG": "Plag_stl_B16.csv",
+}
 
 
 def detect_stl_format(path: str | Path) -> str:
@@ -97,6 +101,55 @@ def nikolaisen_inventory(
     return frame.sort_values(["stl_size_bytes", "particle_id"]).reset_index(drop=True)
 
 
+def nikolaisen_stl_metadata(
+    dataset_root: str | Path = "data/Nikolaisen2022",
+    phases: tuple[str, ...] = ("OPX", "PLAG"),
+) -> pd.DataFrame:
+    """Load Nikolaisen STL metadata with normalized particle IDs."""
+
+    dataset_root = Path(dataset_root)
+    rows: list[pd.DataFrame] = []
+    for phase_name in phases:
+        phase_key = phase_name.upper()
+        metadata_name = NIKOLAISEN_METADATA_FILES.get(phase_key)
+        if metadata_name is None:
+            known = ", ".join(NIKOLAISEN_METADATA_FILES)
+            raise ValueError(f"Unknown phase {phase_name!r}; expected one of {known}")
+
+        path = dataset_root / metadata_name
+        frame = pd.read_csv(path)
+        frame = frame.rename(
+            columns={
+                "Filename": "particle_id",
+                "Volume": "metadata_volume_um3",
+                "EVSD (mu)": "metadata_evsd_um",
+            }
+        )
+        frame["particle_id"] = frame["particle_id"].astype(str).str.upper()
+        frame["phase"] = phase_key
+        rows.append(frame[["particle_id", "phase", "metadata_volume_um3", "metadata_evsd_um"]])
+
+    if not rows:
+        return pd.DataFrame(
+            columns=["particle_id", "phase", "metadata_volume_um3", "metadata_evsd_um"]
+        )
+    return pd.concat(rows, ignore_index=True)
+
+
+def add_nikolaisen_stl_metadata(
+    inventory: pd.DataFrame,
+    dataset_root: str | Path = "data/Nikolaisen2022",
+) -> pd.DataFrame:
+    """Attach Nikolaisen volume and EVSD metadata to an inventory table."""
+
+    if inventory.empty:
+        return inventory.copy()
+
+    phases = tuple(sorted(inventory["phase"].dropna().unique()))
+    metadata = nikolaisen_stl_metadata(dataset_root, phases=phases)
+    return inventory.merge(metadata, on=["particle_id", "phase"], how="left")
+
+
 def assign_size_bins(df: pd.DataFrame, n_bins: int = 4) -> pd.DataFrame:
     """Sort meshes by STL file size and assign balanced notebook bins."""
 
@@ -120,4 +173,3 @@ def assign_size_bins(df: pd.DataFrame, n_bins: int = 4) -> pd.DataFrame:
     ]
     result["size_bin"] = result["size_bin_index"].map(lambda index: labels[index])
     return result
-

@@ -7,6 +7,8 @@ from typing import Iterable
 
 import numpy as np
 
+from .units import DEFAULT_INPUT_UNIT, scale_for_unit
+
 
 def _require_pyvista():
     try:
@@ -141,6 +143,65 @@ def inspect_surface_stl(path: str | Path) -> dict[str, object]:
     }
     row.update(_quality_stats(surface, ("area", "min_angle", "max_angle", "aspect_ratio")))
     return row
+
+
+def estimate_grain_size_stl(
+    path: str | Path,
+    *,
+    input_unit: str = DEFAULT_INPUT_UNIT,
+    input_scale_to_meters: float | None = None,
+) -> dict[str, object]:
+    """Estimate characteristic grain size from a closed STL surface.
+
+    STL files do not encode physical units. The caller must provide the input
+    unit or scale. The returned characteristic sizes are in nanometers:
+
+    - ``grain_equivalent_cube_edge_nm``: edge length of a cube with the same
+      volume as the STL surface.
+    - ``grain_equivalent_sphere_diameter_nm``: diameter of a sphere with the
+      same volume as the STL surface.
+
+    These are volume-equivalent size estimates, not crystallographic or
+    segmentation-specific grain-size definitions.
+    """
+
+    scale = scale_for_unit(input_unit) if input_scale_to_meters is None else input_scale_to_meters
+    if scale <= 0:
+        raise ValueError("input_scale_to_meters must be positive")
+
+    surface = load_surface(path)
+    bounds = surface.bounds
+    lengths_native = np.asarray(
+        [
+            bounds[1] - bounds[0],
+            bounds[3] - bounds[2],
+            bounds[5] - bounds[4],
+        ],
+        dtype=float,
+    )
+    native_to_nm = scale / 1e-9
+    lengths_nm = lengths_native * native_to_nm
+    volume_native = abs(float(surface.volume))
+    volume_nm3 = volume_native * native_to_nm**3
+    equivalent_cube_edge_nm = volume_nm3 ** (1 / 3) if volume_nm3 > 0 else 0.0
+    equivalent_sphere_diameter_nm = (
+        (6 * volume_nm3 / np.pi) ** (1 / 3) if volume_nm3 > 0 else 0.0
+    )
+
+    return {
+        "path": str(path),
+        "input_unit": input_unit,
+        "input_scale_to_meters": float(scale),
+        "grain_volume_native": volume_native,
+        "grain_volume_nm3": float(volume_nm3),
+        "grain_equivalent_cube_edge_nm": float(equivalent_cube_edge_nm),
+        "grain_equivalent_sphere_diameter_nm": float(equivalent_sphere_diameter_nm),
+        "grain_bbox_x_nm": float(lengths_nm[0]),
+        "grain_bbox_y_nm": float(lengths_nm[1]),
+        "grain_bbox_z_nm": float(lengths_nm[2]),
+        "grain_bbox_max_nm": float(np.max(lengths_nm)),
+        "grain_bbox_diagonal_nm": float(np.linalg.norm(lengths_nm)),
+    }
 
 
 def load_volume_mesh(path: str | Path):

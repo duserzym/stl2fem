@@ -36,9 +36,11 @@ def repair_surface_with_pymeshfix(
     surface = load_surface(input_path)
     faces = surface.faces.reshape(-1, 4)[:, 1:]
     meshfix = pymeshfix.MeshFix(surface.points, faces)
-    meshfix.repair(verbose=verbose)
+    try:
+        meshfix.repair(verbose=verbose)
+    except TypeError:
+        meshfix.repair()
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     meshfix.mesh.save(output_path)
     return inspect_surface_stl(output_path)
-
