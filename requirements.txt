@@ -1,0 +1,11 @@
+# Reproducible direct dependencies tested with Python 3.10.
+#
+# Install the local editable package first when developing:
+#   python -m pip install -e .
+gmsh==4.15.2
+meshio==5.3.5
+numpy==2.2.6
+pandas==2.3.3
+pymeshfix==0.18.1
+pyvista==0.48.0
+
