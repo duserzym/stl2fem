@@ -1,8 +1,22 @@
 # Nikolaisen2022 Examples
 
-These notebooks use `data/Nikolaisen2022/* Binary meshes/*.stl` as the example
-input folders. The package detects the real STL encoding, because the dataset's
-binary folders can contain ASCII STL files.
+These notebooks use `data/Nikolaisen2022/Plag Binary meshes/*.stl` as the
+production example input folder. The package detects the real STL encoding,
+because the dataset's binary folders can contain ASCII STL files.
+
+The conversion notebooks default to the production target:
+
+- phase: Plag only
+- metadata filter: `EVSD < 1 um`
+- output folder: `data/Nikolaisen2022_merrill_msh`
+- retained mesh files: Merrill-ready meter-scale `.msh` files only
+- temporary native-unit diagnostic meshes are deleted after quality metrics are
+  recorded
+- per-mesh timeout: package default, with failures recorded in the report CSV
+  so one difficult STL does not block the rest of a bin
+- recovery strategy: original Gmsh, MeshFix+Gmsh, voxel tetrahedra, then
+  Delaunay hull fallback when rough shape preservation is preferable to losing
+  a particle from the ensemble
 
 Run order:
 
@@ -20,6 +34,10 @@ default display limit is intentionally small so executed notebook files do not
 become enormous. Increase `DISPLAY_LIMIT` inside a notebook for deeper visual
 inspection.
 
+The inventory notebook also estimates volume-equivalent grain size in nm for
+each STL and overlays reference cube sizes with 10, 50, 100, and 200 nm edge
+lengths.
+
 STL files do not reliably store units. The examples treat the Nikolaisen2022
 coordinates as micrometers by dataset convention and write Merrill-ready meshes
 in meters. The default physical target tetrahedron edge length is `9e-9 m`,
@@ -27,3 +45,6 @@ which is `0.009` native units for micrometer-scale coordinates. Each conversion
 report prints realized tetrahedron edge-length statistics in both native units
 and meters because Gmsh can realize a different size distribution than
 requested.
+
+The recovery strategy used for each particle is recorded in the report CSV.
+See `../MESH_RECOVERY_STRATEGIES.md` for the source functions and tradeoffs.
