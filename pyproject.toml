@@ -38,6 +38,7 @@ examples = [
   "ipywidgets",
   "jupyterlab",
   "matplotlib",
+  "nest_asyncio2",
   "trame",
   "trame-vtk",
   "trame-vuetify",

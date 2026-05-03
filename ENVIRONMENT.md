@@ -29,6 +29,9 @@ mamba activate stl2fem
 ## Notes
 
 - `pyvista` pulls in VTK, which is the largest dependency.
+- Notebook interactivity uses PyVista's Trame backend. The examples extra
+  includes `nest_asyncio2` so PyVista can launch the Trame server from a running
+  Jupyter event loop. Without it, PyVista may fall back to static output.
 - STL files do not reliably store physical units. Declare the input unit with
   `--input-unit` or `--input-scale-to-meters`.
 - The default physical target tetrahedron edge length is `9e-9 m`. For

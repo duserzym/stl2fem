@@ -14,6 +14,7 @@ def display_volume_mesh(
     show_edges: bool = True,
     opacity: float = 0.35,
     window_size: tuple[int, int] = (900, 650),
+    jupyter_backend: str = "trame",
 ):
     """Display a converted tetrahedral mesh in a notebook or PyVista window."""
 
@@ -24,5 +25,4 @@ def display_volume_mesh(
     plotter.add_mesh(mesh, scalars=scalars, show_edges=show_edges, opacity=opacity)
     plotter.add_axes()
     plotter.show_grid()
-    return plotter.show()
-
+    return plotter.show(jupyter_backend=jupyter_backend)
