@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stl2fem"
+version = "0.1.0"
+description = "Convert STL particle surfaces to tetrahedral FEM meshes and quality reports for micromagnetic modeling."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+  { name = "stl2fem contributors" }
+]
+keywords = ["fem", "gmsh", "micromagnetics", "mesh", "pyvista", "stl"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+  "gmsh>=4.12",
+  "meshio>=5.3",
+  "numpy>=1.24",
+  "pandas>=2.0",
+  "pymeshfix>=0.17",
+  "pyvista>=0.43",
+]
+
+[project.optional-dependencies]
+examples = [
+  "ipywidgets",
+  "jupyterlab",
+  "matplotlib",
+  "trame",
+  "trame-vtk",
+  "trame-vuetify",
+]
+tetgen = [
+  "tetgen>=0.6",
+]
+dev = [
+  "build",
+  "pytest",
+  "ruff",
+  "twine",
+]
+
+[project.scripts]
+stl2fem = "stl2fem.cli:main"
+
+[project.urls]
+Repository = "https://github.com/yimingzhang/stl2fem.jl"
+Roadmap = "https://github.com/yimingzhang/stl2fem.jl/blob/main/roadmap.md"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
