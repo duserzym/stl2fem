@@ -58,14 +58,35 @@ stl2fem nikolaisen-inventory \
   --out processed/Nikolaisen2022/04_quality_reports/nikolaisen_binary_stl_inventory.csv
 ```
 
-Process one size bin by checking surface quality, generating Gmsh Delaunay
-tetrahedral `.msh` files, checking tetrahedron quality, and estimating Merrill.jl
-memory:
+The default production run processes only Nikolaisen2022 Plag particles with
+metadata `EVSD < 1 um`, writes only Merrill-ready meter-scale `.msh` files, and
+stores them under `data/Nikolaisen2022_merrill_msh`. Each STL conversion has a
+default per-mesh timeout so one difficult surface is reported in the CSV instead
+of blocking the whole batch. The production workflow also uses a pragmatic
+fallback sequence for malformed reconstructed surfaces:
+
+1. original STL with Gmsh;
+2. MeshFix-repaired STL with Gmsh;
+3. voxelized rough volume split into tetrahedra;
+4. Delaunay hull of the STL point cloud as the final fallback.
+
+```bash
+stl2fem process-nikolaisen-merrill
+```
+
+Use `--mesh-timeout-seconds 0` to disable that safeguard, or set a larger value
+to retry difficult meshes.
+
+The report CSV records `mesh_strategy`, `attempted_mesh_strategies`, and
+`strategy_errors`, so exact meshes can be separated from repaired/brute-force
+approximations later.
+
+Process one size bin from that same filtered Plag set:
 
 ```bash
 stl2fem process-nikolaisen-bin \
   --dataset-root data/Nikolaisen2022 \
-  --output-root processed/Nikolaisen2022 \
+  --output-root data/Nikolaisen2022_merrill_msh \
   --bin-index 0
 ```
 
@@ -90,7 +111,26 @@ The reported output includes the realized tetrahedron edge lengths
 `edge_length_min`, `edge_length_median`, `edge_length_p95`,
 `edge_length_max`, and their `_m` meter-scaled counterparts.
 
-Generated meshes and reports are written under `processed/Nikolaisen2022/`.
+For the Nikolaisen production workflow, generated Merrill meshes are written to
+`data/Nikolaisen2022_merrill_msh/` and reports are written to
+`data/Nikolaisen2022_merrill_msh/_reports/`.
+
+Estimate volume-equivalent grain size for an STL:
+
+```python
+from stl2fem.quality import estimate_grain_size_stl
+
+estimate_grain_size_stl("particle.stl", input_unit="um")
+```
+
+This reports total enclosed volume in `nm^3`, the equivalent-cube edge length in
+`nm`, the equivalent-sphere diameter in `nm`, and bounding-box dimensions in
+`nm`. STL files are unitless, so `input_unit` or `input_scale_to_meters` must
+match the dataset convention.
+
+See `MESH_RECOVERY_STRATEGIES.md` for the deliberately permissive repair and
+brute-force meshing functions used when the original reconstructed STL topology
+is not directly meshable.
 
 ## Examples
 
