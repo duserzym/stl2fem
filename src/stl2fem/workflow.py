@@ -26,7 +26,8 @@ DEFAULT_NIKOLAISEN_MERRILL_OUTPUT_ROOT = "data/Nikolaisen2022_merrill_msh"
 DEFAULT_NIKOLAISEN_PHASES = ("PLAG",)
 DEFAULT_MAX_EVSD_UM = 1.0
 DEFAULT_MESH_TIMEOUT_SECONDS = 60.0
-DEFAULT_MESH_STRATEGIES = ("gmsh", "pymeshfix_gmsh", "voxel", "hull_delaunay")
+# surface_fill keeps the published surface and is tried before the voxel staircase; see conversion.tetrahedralize_stl_surface_fill.
+DEFAULT_MESH_STRATEGIES = ("gmsh", "pymeshfix_gmsh", "surface_fill", "voxel", "hull_delaunay")
 
 
 def _cleanup_mesh_outputs(*paths: str | Path | None) -> None:
@@ -68,7 +69,7 @@ def _convert_and_inspect_mesh(payload: dict[str, object]) -> dict[str, object]:
             target_edge_length_m=float(payload["target_edge_length_m"]),
             overwrite=bool(payload["overwrite"]),
         )
-    elif strategy in {"voxel", "hull_delaunay"}:
+    elif strategy in {"surface_fill", "voxel", "hull_delaunay"}:
         _, _, _, info = tetrahedralize_bruteforce_stl_for_merrill(
             stl_path,
             msh_path,
