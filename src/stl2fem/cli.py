@@ -173,10 +173,10 @@ def build_parser() -> argparse.ArgumentParser:
     process_bin.add_argument(
         "--mesh-strategy",
         action="append",
-        choices=["gmsh", "pymeshfix_gmsh", "voxel", "hull_delaunay"],
+        choices=["gmsh", "pymeshfix_gmsh", "surface_fill", "voxel", "hull_delaunay"],
         help=(
             "Meshing strategy to try, in order. Repeat to override the default "
-            "gmsh -> pymeshfix_gmsh -> voxel -> hull_delaunay sequence."
+            "gmsh -> pymeshfix_gmsh -> surface_fill -> voxel -> hull_delaunay sequence."
         ),
     )
     process_bin.add_argument(
@@ -228,10 +228,10 @@ def build_parser() -> argparse.ArgumentParser:
     process_merrill.add_argument(
         "--mesh-strategy",
         action="append",
-        choices=["gmsh", "pymeshfix_gmsh", "voxel", "hull_delaunay"],
+        choices=["gmsh", "pymeshfix_gmsh", "surface_fill", "voxel", "hull_delaunay"],
         help=(
             "Meshing strategy to try, in order. Repeat to override the default "
-            "gmsh -> pymeshfix_gmsh -> voxel -> hull_delaunay sequence."
+            "gmsh -> pymeshfix_gmsh -> surface_fill -> voxel -> hull_delaunay sequence."
         ),
     )
     process_merrill.add_argument(
