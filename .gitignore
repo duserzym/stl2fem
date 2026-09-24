@@ -10,3 +10,9 @@ build/
 dist/
 *.egg-info/
 roadmap.md
+
+# Mesh sets too large for git (single files up to ~220 MB). Downstream campaigns pin every file by SHA-256 in
+# their own inventories; regenerate with scripts/remesh_voxel_fallbacks.py and process-nikolaisen-merrill.
+data/Nikolaisen2022_OPX_merrill_msh/
+data/Nikolaisen2022_OPX_merrill_msh_surface_fill/
+data/Nikolaisen2022_merrill_msh_surface_fill/
