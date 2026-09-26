@@ -350,7 +350,8 @@ def tetrahedralize_repaired_stl_for_merrill(
     return native_path, meter_path, units, {"mesh_strategy": "pymeshfix_gmsh"}
 
 
-def _fill_surface_with_gmsh(stl_path: Path, msh_path: Path, target_edge_length: float) -> None:
+def _fill_surface_with_gmsh(stl_path: Path, msh_path: Path, target_edge_length: float,
+                            pin_interior: bool = True) -> None:
     import gmsh
 
     gmsh.initialize()
@@ -358,6 +359,11 @@ def _fill_surface_with_gmsh(stl_path: Path, msh_path: Path, target_edge_length: 
         gmsh.option.setNumber("General.Terminal", 0)
         gmsh.option.setNumber("Mesh.MshFileVersion", 2.2)
         gmsh.option.setNumber("Mesh.MeshSizeMax", target_edge_length)
+        if pin_interior:
+            # Interior tetrahedra at the target size, as the reparametrizing Gmsh strategy meshes them, rather than
+            # sizes interpolated inward from the (finer) boundary triangles.
+            gmsh.option.setNumber("Mesh.MeshSizeMin", target_edge_length)
+            gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
         gmsh.option.setNumber("Mesh.Algorithm3D", GMSH_3D_ALGORITHMS["delaunay"])
         gmsh.merge(str(stl_path))
         # "Merge x.stl; Surface Loop; Volume": the merged STL is a discrete surface that keeps its own triangles,
@@ -382,9 +388,20 @@ def tetrahedralize_stl_surface_fill(
     msh_path: str | Path,
     *,
     target_edge_length: float = DEFAULT_TARGET_EDGE_LENGTH,
+    surface_edge_factor: float = 1.5,
+    pin_interior: bool = True,
     overwrite: bool = False,
 ) -> tuple[Path, dict[str, object]]:
     """Fill the given STL surface with tetrahedra, keeping the surface itself.
+
+    Resolution. The published surfaces are built from quantized edges (about 14 nm for the OPX particles, 20.5 nm
+    for the plagioclase ones), and linear subdivision can only halve them, so the surface limit decides the edge
+    population. Splitting only edges longer than ``surface_edge_factor * target`` (13.5 nm for a 9 nm target) and
+    filling the interior at the target itself (``pin_interior``) reproduces the reparametrizing Gmsh strategy's
+    9 nm meshes: on two audited plagioclase grains, 2438/2635 nodes against 2320/2658, unique-edge median 8.8 nm
+    against 9.1 and p90 12.9-13.2 against 13.4-13.5. The earlier setting (factor 1.0, interior extended from the
+    boundary) halved nearly every surface edge and gave a 7.1 nm median with about twice the nodes; it is kept
+    reachable through these two arguments for reproducing those meshes.
 
     This is the route the Nikolaisen2022 particles were meshed by for MERRILL: their published STLs are already
     hole-free and lightly smoothed, and Iso2Mesh (TetGen) filled them without further smoothing. Here the surface
@@ -410,7 +427,7 @@ def tetrahedralize_stl_surface_fill(
     def refined(source: Path) -> tuple[Path, float]:
         surf = pv.read(source).triangulate().clean()
         volume = float(surf.volume)
-        surf = surf.subdivide_adaptive(max_edge_len=target_edge_length, max_n_passes=20).clean()
+        surf = surf.subdivide_adaptive(max_edge_len=surface_edge_factor * target_edge_length, max_n_passes=20).clean()
         out = Path(f"{work}_surface.stl")
         surf.save(out, binary=True)
         return out, volume
@@ -424,7 +441,7 @@ def tetrahedralize_stl_surface_fill(
     refined_path, volume = refined(source)
     first_error = ""
     try:
-        _fill_surface_with_gmsh(refined_path, msh_path, target_edge_length)
+        _fill_surface_with_gmsh(refined_path, msh_path, target_edge_length, pin_interior)
     except Exception as exc:
         if repaired:
             raise
@@ -432,9 +449,11 @@ def tetrahedralize_stl_surface_fill(
         source = Path(f"{work}_repaired.stl")
         repair_surface_with_pymeshfix(stl_path, source, overwrite=True)
         refined_path, volume = refined(source)
-        _fill_surface_with_gmsh(refined_path, msh_path, target_edge_length)
+        _fill_surface_with_gmsh(refined_path, msh_path, target_edge_length, pin_interior)
         repaired = True
     return msh_path, {"mesh_strategy": "surface_fill", "surface_fill_repaired": repaired,
+                      "surface_fill_surface_max_edge_native": surface_edge_factor * target_edge_length,
+                      "surface_fill_interior_pinned": pin_interior,
                       "surface_fill_first_error": first_error, "surface_fill_surface_volume_native": volume}
 
 
