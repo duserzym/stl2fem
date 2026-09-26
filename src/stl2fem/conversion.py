@@ -350,8 +350,55 @@ def tetrahedralize_repaired_stl_for_merrill(
     return native_path, meter_path, units, {"mesh_strategy": "pymeshfix_gmsh"}
 
 
+SLIVER_QUALITY = 0.02
+
+
+def _tetrahedron_quality(points: np.ndarray, tets: np.ndarray) -> np.ndarray:
+    """Inradius over longest edge, normalized to 1 for the regular tetrahedron."""
+    a, b, c, d = (points[tets[:, i]] for i in range(4))
+    volume = np.abs(np.einsum("ij,ij->i", b - a, np.cross(c - a, d - a))) / 6.0
+    area = sum(0.5 * np.linalg.norm(np.cross(y - x, z - x), axis=1)
+               for x, y, z in ((a, b, c), (a, b, d), (a, c, d), (b, c, d)))
+    longest = np.max([np.linalg.norm(u - v, axis=1) for u, v in ((a, b), (a, c), (a, d), (b, c), (b, d), (c, d))], axis=0)
+    return (3.0 * volume / area) / longest * (2.0 * np.sqrt(6.0))
+
+
+def _remove_boundary_caps(msh_path: Path, threshold: float = SLIVER_QUALITY) -> tuple[int, float]:
+    """Delete flat boundary caps and return (caps removed, minimum remaining quality).
+
+    A filled surface keeps its own triangles, so Delaunay can leave a nearly flat tetrahedron wedged between two
+    almost coplanar surface triangles: all four vertices on the boundary and two of its faces on it. Its quality is
+    ~1e-5 and its stiffness puts torques of several tesla on a handful of nodes, which fails every LEM trial's 1 mT
+    gate (OPX080). Removing such a cap is an edge flip on a nearly flat quad of the boundary: the enclosed volume
+    changes by ~1e-8 of the particle and no vertex moves. The file is rewritten only when a cap is removed, so a
+    mesh without caps stays byte-identical to the Gmsh output.
+    """
+    meshio = _require_meshio()
+    mesh = meshio.read(msh_path)
+    tets = np.sort(np.asarray(mesh.cells_dict["tetra"]), axis=1)
+    removed = 0
+    for _ in range(10):
+        faces = np.vstack([tets[:, [0, 1, 2]], tets[:, [0, 1, 3]], tets[:, [0, 2, 3]], tets[:, [1, 2, 3]]])
+        _, inverse, counts = np.unique(faces, axis=0, return_inverse=True, return_counts=True)
+        boundary_faces = (counts[inverse.ravel()] == 1).reshape(4, -1).T.sum(axis=1)
+        cap = (_tetrahedron_quality(mesh.points, tets) < threshold) & (boundary_faces >= 2)
+        if not cap.any():
+            break
+        removed += int(cap.sum())
+        tets = tets[~cap]
+    if removed:
+        used = np.unique(tets)
+        remap = np.full(len(mesh.points), -1, dtype=np.int64)
+        remap[used] = np.arange(len(used))
+        tags = np.ones(len(tets), dtype=np.int32)
+        meshio.write(msh_path, meshio.Mesh(points=mesh.points[used], cells=[("tetra", remap[tets])],
+                                           cell_data={"gmsh:physical": [tags], "gmsh:geometrical": [tags.copy()]}),
+                     file_format="gmsh22", binary=False)
+    return removed, float(_tetrahedron_quality(mesh.points, tets).min())
+
+
 def _fill_surface_with_gmsh(stl_path: Path, msh_path: Path, target_edge_length: float,
-                            pin_interior: bool = True) -> None:
+                            pin_interior: bool = True, algorithm: str = "delaunay") -> None:
     import gmsh
 
     gmsh.initialize()
@@ -364,7 +411,7 @@ def _fill_surface_with_gmsh(stl_path: Path, msh_path: Path, target_edge_length: 
             # sizes interpolated inward from the (finer) boundary triangles.
             gmsh.option.setNumber("Mesh.MeshSizeMin", target_edge_length)
             gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
-        gmsh.option.setNumber("Mesh.Algorithm3D", GMSH_3D_ALGORITHMS["delaunay"])
+        gmsh.option.setNumber("Mesh.Algorithm3D", GMSH_3D_ALGORITHMS[algorithm])
         gmsh.merge(str(stl_path))
         # "Merge x.stl; Surface Loop; Volume": the merged STL is a discrete surface that keeps its own triangles,
         # and the volume it bounds is meshed without classifySurfaces/createGeometry reparametrization.
@@ -451,10 +498,23 @@ def tetrahedralize_stl_surface_fill(
         refined_path, volume = refined(source)
         _fill_surface_with_gmsh(refined_path, msh_path, target_edge_length, pin_interior)
         repaired = True
+    # Sliver control: remove boundary caps; if slivers remain, fill the same surface with HXT, which on the OPX
+    # particles left none (OPX032/034/044), and remove its caps too; a mesh that still has one is refused.
+    algorithm = "delaunay"
+    caps, min_quality = _remove_boundary_caps(msh_path)
+    if min_quality < SLIVER_QUALITY:
+        algorithm = "hxt"
+        _fill_surface_with_gmsh(refined_path, msh_path, target_edge_length, pin_interior, algorithm=algorithm)
+        caps, min_quality = _remove_boundary_caps(msh_path)
+        if min_quality < SLIVER_QUALITY:
+            raise RuntimeError(f"sliver tetrahedra remain after cap removal with Delaunay and HXT "
+                               f"(minimum quality {min_quality:.2e} < {SLIVER_QUALITY})")
     return msh_path, {"mesh_strategy": "surface_fill", "surface_fill_repaired": repaired,
                       "surface_fill_surface_max_edge_native": surface_edge_factor * target_edge_length,
                       "surface_fill_interior_pinned": pin_interior,
-                      "surface_fill_first_error": first_error, "surface_fill_surface_volume_native": volume}
+                      "surface_fill_first_error": first_error, "surface_fill_surface_volume_native": volume,
+                      "surface_fill_algorithm": algorithm, "surface_fill_caps_removed": caps,
+                      "surface_fill_min_quality": min_quality}
 
 
 def tetrahedralize_bruteforce_stl_for_merrill(

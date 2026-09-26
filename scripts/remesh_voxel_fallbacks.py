@@ -9,7 +9,8 @@ enclosed volume, whether MeshFix was needed, and the SHA-256 of the metre-scaled
 Particles are processed smallest first, and a particle that already has an output is skipped, so the run can be
 interrupted and resumed.
 
-Usage: python scripts/remesh_voxel_fallbacks.py <phase: PLAG|OPX> <existing quality report CSV> <output root>
+Usage: python scripts/remesh_voxel_fallbacks.py <phase: PLAG|OPX> <existing quality report CSV> <output root> [ids]
+(ids: optional comma-separated particle ids to restrict the run to)
 """
 from __future__ import annotations
 
@@ -41,7 +42,9 @@ def sha256(path: Path) -> str:
 def main() -> None:
     phase, report_path, out_root = sys.argv[1], Path(sys.argv[2]), Path(sys.argv[3])
     out_root.mkdir(parents=True, exist_ok=True)
-    rows = [r for r in csv.DictReader(open(report_path, newline="")) if r["mesh_strategy"] == "voxel"]
+    only = set(sys.argv[4].split(",")) if len(sys.argv) > 4 else None
+    rows = [r for r in csv.DictReader(open(report_path, newline="")) if r["mesh_strategy"] == "voxel"
+            and (only is None or r["particle_id"] in only)]
     rows.sort(key=lambda r: int(float(r["n_nodes"] or 0)))
     out_csv = out_root / "_reports" / "surface_fill_remesh.csv"
     out_csv.parent.mkdir(parents=True, exist_ok=True)
@@ -51,7 +54,7 @@ def main() -> None:
     fields = ["particle_id", "phase", "source_path", "old_strategy", "old_n_nodes", "new_strategy", "n_nodes",
               "n_tets", "mesh_volume_m3", "stl_volume_m3", "volume_relative_error", "repaired", "first_error",
               "edge_median_nm", "edge_p90_nm", "surface_max_edge_nm", "interior_pinned",
-              "merrill_msh_path", "sha256", "seconds", "status", "error"]
+              "algorithm", "caps_removed", "min_quality", "merrill_msh_path", "sha256", "seconds", "status", "error"]
     new_file = not out_csv.exists()
     with open(out_csv, "a", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=fields)
@@ -69,7 +72,7 @@ def main() -> None:
                    "old_n_nodes": r["n_nodes"], "new_strategy": "", "n_nodes": 0, "n_tets": 0,
                    "mesh_volume_m3": "", "stl_volume_m3": "", "volume_relative_error": "", "repaired": "",
                    "first_error": "", "edge_median_nm": "", "edge_p90_nm": "", "surface_max_edge_nm": "",
-                   "interior_pinned": "", "merrill_msh_path": "", "sha256": "", "seconds": 0, "status": "", "error": ""}
+                   "interior_pinned": "", "algorithm": "", "caps_removed": "", "min_quality": "", "merrill_msh_path": "", "sha256": "", "seconds": 0, "status": "", "error": ""}
             # Each particle runs in its own interpreter: MeshFix and VTK can crash natively on degenerate surfaces
             # (a 29-point open surface took the whole run down without a Python traceback), and a crash must cost
             # only that particle.
@@ -110,7 +113,9 @@ def one(stl: Path, native: Path, meter: Path) -> None:
                       "first_error": str(info["surface_fill_first_error"])[:200],
                       "edge_median_nm": float(np.median(lengths)), "edge_p90_nm": float(np.percentile(lengths, 90)),
                       "surface_max_edge_nm": float(info["surface_fill_surface_max_edge_native"]) * 1000.0,
-                      "interior_pinned": bool(info["surface_fill_interior_pinned"])}))
+                      "interior_pinned": bool(info["surface_fill_interior_pinned"]),
+                      "algorithm": info["surface_fill_algorithm"], "caps_removed": int(info["surface_fill_caps_removed"]),
+                      "min_quality": float(info["surface_fill_min_quality"])}))
 
 
 if __name__ == "__main__":
