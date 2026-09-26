@@ -50,6 +50,7 @@ def main() -> None:
         done = {r["particle_id"] for r in csv.DictReader(open(out_csv, newline=""))}
     fields = ["particle_id", "phase", "source_path", "old_strategy", "old_n_nodes", "new_strategy", "n_nodes",
               "n_tets", "mesh_volume_m3", "stl_volume_m3", "volume_relative_error", "repaired", "first_error",
+              "edge_median_nm", "edge_p90_nm", "surface_max_edge_nm", "interior_pinned",
               "merrill_msh_path", "sha256", "seconds", "status", "error"]
     new_file = not out_csv.exists()
     with open(out_csv, "a", newline="") as fh:
@@ -67,7 +68,8 @@ def main() -> None:
             rec = {"particle_id": pid, "phase": phase, "source_path": r["source_path"], "old_strategy": "voxel",
                    "old_n_nodes": r["n_nodes"], "new_strategy": "", "n_nodes": 0, "n_tets": 0,
                    "mesh_volume_m3": "", "stl_volume_m3": "", "volume_relative_error": "", "repaired": "",
-                   "first_error": "", "merrill_msh_path": "", "sha256": "", "seconds": 0, "status": "", "error": ""}
+                   "first_error": "", "edge_median_nm": "", "edge_p90_nm": "", "surface_max_edge_nm": "",
+                   "interior_pinned": "", "merrill_msh_path": "", "sha256": "", "seconds": 0, "status": "", "error": ""}
             # Each particle runs in its own interpreter: MeshFix and VTK can crash natively on degenerate surfaces
             # (a 29-point open surface took the whole run down without a Python traceback), and a crash must cost
             # only that particle.
@@ -99,10 +101,16 @@ def one(stl: Path, native: Path, meter: Path) -> None:
     stl_vol = float(info["surface_fill_surface_volume_native"]) * units.input_scale_to_meters ** 3
     if not (np.isfinite(stl_vol) and stl_vol > 0):
         raise RuntimeError("surface encloses no volume")
+    e = np.vstack([tets[:, [i, j]] for i, j in ((0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3))])
+    e = np.unique(np.sort(e, axis=1), axis=0)
+    lengths = np.linalg.norm(p[e[:, 0]] - p[e[:, 1]], axis=1) * 1e9
     print(json.dumps({"new_strategy": "surface_fill", "n_nodes": int(len(np.unique(tets))), "n_tets": int(len(tets)),
                       "mesh_volume_m3": vol, "stl_volume_m3": stl_vol, "volume_relative_error": vol / stl_vol - 1.0,
                       "repaired": bool(info["surface_fill_repaired"]),
-                      "first_error": str(info["surface_fill_first_error"])[:200]}))
+                      "first_error": str(info["surface_fill_first_error"])[:200],
+                      "edge_median_nm": float(np.median(lengths)), "edge_p90_nm": float(np.percentile(lengths, 90)),
+                      "surface_max_edge_nm": float(info["surface_fill_surface_max_edge_native"]) * 1000.0,
+                      "interior_pinned": bool(info["surface_fill_interior_pinned"])}))
 
 
 if __name__ == "__main__":
