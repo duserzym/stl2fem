@@ -1,2 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+# Grain-viewer mesh bundles (scripts/build_grain_viewer.py)
+*.bin.gz binary

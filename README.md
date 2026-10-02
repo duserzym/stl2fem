@@ -152,6 +152,15 @@ Important dataset note: the Nikolaisen2022 folders named `Binary meshes` can
 contain ASCII STL files. `stl2fem` detects the actual file encoding instead of
 trusting the folder label.
 
+## Grain viewer
+
+`docs/grain-viewer/` is a static 3D review page covering every Nikolaisen2022
+PLAG and OPX grain. For each grain it shows the published STL and the boundary
+surface of the tetrahedral mesh used for micromagnetic modeling. You can view
+them separately, overlaid or side by side. The page has a scale bar, automatic
+checks and a per-grain review log. Rebuild its data with
+`python scripts/build_grain_viewer.py`; see `docs/grain-viewer/README.md`.
+
 ## Development
 
 See `ENVIRONMENT.md` for reproducible `venv` and `conda` setup commands.
