@@ -16,16 +16,18 @@
   <aside class="sidebar" id="sidebar" aria-label="Grain list">
     <header class="brand">
       <h1>Magnetite grain viewer</h1>
-      <p class="sub">Nikolaisen et al. (2022) FIB-SEM grains · published STL vs. FEM mesh</p>
+      <p class="sub">FIB-SEM magnetite · published geometry vs. FEM mesh · Nikolaisen 2022, Gergov 2025</p>
     </header>
 
     <div class="filters">
-      <div class="seg" role="group" aria-label="Host mineral">
-        <button data-host="all" aria-pressed="true">All</button>
-        <button data-host="PLAG" aria-pressed="false">Plag</button>
-        <button data-host="OPX" aria-pressed="false">OPX</button>
+      <div class="seg" role="group" aria-label="Sample">
+        <button data-host="all" aria-pressed="true" title="All grains">All</button>
+        <button data-host="PLAG" aria-pressed="false" title="Nikolaisen et al. 2022, plagioclase-hosted">Plag</button>
+        <button data-host="OPX" aria-pressed="false" title="Nikolaisen et al. 2022, orthopyroxene-hosted">OPX</button>
+        <button data-host="HEKLA" aria-pressed="false" title="Gergov et al. 2025, Hekla 1991 basalt">Hekla</button>
+        <button data-host="VESUVIUS" aria-pressed="false" title="Gergov et al. 2025, Vesuvius 1944 basalt">Ves.</button>
       </div>
-      <input id="search" type="search" placeholder="Search ID, e.g. PLAG124" autocomplete="off" spellcheck="false">
+      <input id="search" type="search" placeholder="Search ID, e.g. PLAG124 or H009" autocomplete="off" spellcheck="false">
       <div class="row">
         <label class="check"><input type="checkbox" id="f-cohort"> 100-grain cohort</label>
         <label class="check"><input type="checkbox" id="f-flagged"> Flagged</label>
@@ -96,6 +98,7 @@
     <p><b>Original</b> is the per-particle STL published by Nikolaisen et al. (2022) (FIB-SEM slice-and-view, 25 nm slices; segmented in FIJI, meshed in ParaView, separated in Meshmixer, solidified with Iso2Mesh). Vertices are welded; geometry is otherwise untouched.</p>
     <p><b>Processed</b> is the outer boundary of the tetrahedral Gmsh 2.2 mesh used for MERRILL micromagnetic modeling, produced by <code>stl2fem</code> and selected per grain by the downstream mesh inventories (PLAG: 245-grain surface-fill inventory; OPX: 82-grain 9 nm v2 inventory). Edge, tetrahedron and volume statistics use the full volume mesh.</p>
     <p>Both surfaces are shown in nanometres in the FIB sample frame, translated so that the raw-STL bounding-box centre is the origin; they are therefore registered and directly comparable. The camera is orthographic, so the scale bar is exact anywhere in the view.</p>
+    <p><b>Gergov et al. (2025)</b> Hekla 1991 and Vesuvius 1944 basalt grains (H###, V###; <a href="https://doi.org/10.5281/zenodo.11369780" target="_blank" rel="noopener">Zenodo 11369780</a>, CC-BY-4.0) were published as smoothed CUBIT tetrahedral meshes rather than surface models. stl2fem converts them exactly (µm → m, Patran → Gmsh 2.2) on branch <code>Gergov2025_stl2msh</code>, so for these grains only the mesh surface is shown and it is compared with the published volume.</p>
     <p><b>Flags</b> (processed mesh, ⚑ in the list): no processed mesh; voxel fallback or refused remesh; processed volume differs from the published volume by more than <span class="dvp"></span>, or from a closed raw STL by more than <span class="dvr"></span>; more than one connected piece; mesh hash differs from its inventory.</p>
     <p><b>Notes</b> (published input): most PLAG STLs are open, non-manifold and not consistently orientable. Their enclosed volume is undefined, so for those grains the processed mesh is compared with the published volume only, and the raw surface is drawn flat-shaded.</p>
     <p><b>Review notes</b> are stored only in this browser. Use <i>Export CSV</i> to send them; <i>Import CSV</i> merges a file back.</p>

@@ -289,6 +289,86 @@ def git_head(path: Path) -> str | None:
 
 
 # ----------------------------------------------------------------------------
+# Gergov et al. (2025): published as smoothed tetrahedral meshes, so only the converted mesh is shown
+# ----------------------------------------------------------------------------
+
+DATASETS = ("nikolaisen", "gergov")
+HOST_ORDER = ["PLAG", "OPX", "HEKLA", "VESUVIUS"]
+DEFAULT_GERGOV = REPO_ROOT.parent / "stl2fem_gergov2025"
+
+
+def build_gergov(args: argparse.Namespace, out: Path) -> tuple[list[dict], dict]:
+    root = args.gergov_root
+    inv_path = root / "reports" / "Gergov2025" / "inventory.csv"
+    with inv_path.open(newline="", encoding="utf-8-sig") as fh:
+        rows = list(csv.DictReader(fh))
+    grains = []
+    for row in rows:
+        gid = row["grain_id"]
+        if args.only and gid not in args.only:
+            continue
+        print(f"{gid} ...", end=" ", flush=True)
+        msh = root / "data" / "Gergov2025" / "merrill_msh" / row["msh_file"]
+        digest = sha256(msh)
+        xyz_m, tets = read_gmsh22(msh)
+        xyz_nm = xyz_m * 1e9
+        centre = 0.5 * (xyz_nm.min(axis=0) + xyz_nm.max(axis=0))
+        sverts, sfaces = boundary_surface(xyz_nm, tets)
+        blob = encode(sverts - centre, sfaces)
+        (out / "proc" / f"{gid}.bin.gz").write_bytes(blob)
+        pvol = float(tet_volumes(xyz_nm, tets).sum())
+        pub_vol = to_float(row.get("published_volume_um3"))
+        pub_esd = to_float(row.get("published_esd_nm"))
+        entry = {
+            "id": gid,
+            "host": row["locality"].upper(),
+            "dataset": "gergov2025",
+            "published": {
+                "volume_um3": pub_vol,
+                "evsd_um": pub_esd / 1000 if pub_esd else None,
+                "flinn_ratio": to_float(row.get("published_flinn_ratio")),
+                "lem_states": row.get("published_lem_states") or None,
+                "ground_state": row.get("published_ground_state") or None,
+            },
+            "cohort100": False,
+            "centre_nm": [round(float(c), 3) for c in centre],
+            "raw": None,
+            "raw_note": "Published as a smoothed CUBIT tetrahedral mesh (Patran); there is no separate surface model, "
+                        "so the converted mesh is the published geometry.",
+            "proc": {
+                "file": f"proc/{gid}.bin.gz",
+                "source": f"Gergov2025/merrill_msh/{msh.name}",
+                "source_pat": row["source_pat"],
+                "source_pat_sha256": row["source_sha256"],
+                "strategy": "published CUBIT mesh (Patran → Gmsh 2.2, exact)",
+                "sha256": digest,
+                "sha256_matches_inventory": digest == row["msh_sha256"],
+                "n_nodes": int(len(xyz_nm)),
+                "n_tets": int(len(tets)),
+                "n_surface_vertices": int(len(sverts)),
+                "n_surface_triangles": int(len(sfaces)),
+                "volume_nm3": pvol,
+                "area_nm2": surface_area(sverts, sfaces),
+                "volume_rel_diff_vs_raw": None,
+                "volume_rel_diff_vs_published": (pvol - pub_vol * 1e9) / (pub_vol * 1e9) if pub_vol else None,
+                "extent_nm": [float(e) for e in np.ptp(xyz_nm, axis=0)],
+                "tet_edge_nm": {"min": float(row["edge_min_nm"]), "median": float(row["edge_median_nm"]),
+                                "max": float(row["edge_max_nm"])},
+                "shape_min": float(row["shape_min"]),
+                "components": int(row["n_components"]),
+                "bytes": len(blob),
+            },
+        }
+        grains.append(entry)
+        print("ok")
+    provenance = {
+        "dataset": "Gergov, Muxworthy, Williams & Cowan (2025), Hekla and Vesuvius basalt magnetite meshes "
+                   "(doi:10.5281/zenodo.11369780, CC-BY-4.0)",
+        "branch_commit": git_head(root),
+        "inventory": {"file": "reports/Gergov2025/inventory.csv", "sha256": sha256(inv_path), "rows": len(rows)},
+    }
+    return grains, provenance
+
 
 def build(args: argparse.Namespace) -> None:
     out = args.out
@@ -298,7 +378,7 @@ def build(args: argparse.Namespace) -> None:
     cohort = read_rows(args.cohort, "grain_id") if args.cohort.exists() else {}
 
     grains, inventories = [], {}
-    for host, cfg in HOSTS.items():
+    for host, cfg in (HOSTS.items() if "nikolaisen" in args.datasets else ()):
         geo = read_rows(data_root / cfg["stl_meta"], "Filename")
         hyst = read_rows(data_root / cfg["hyst_meta"], "Filename")
         inv_path = args.batches / cfg["inventory"]
@@ -406,25 +486,35 @@ def build(args: argparse.Namespace) -> None:
             grains.append(entry)
             print("ok")
 
+    provenance = {
+        "dataset": "Nikolaisen et al. (2022), silicate-hosted magnetite FIB-SEM STL meshes",
+        "stl2fem_commit": git_head(REPO_ROOT),
+        "inventory_repo_commit": git_head(args.batches.parents[2]),
+        "inventories": inventories,
+        "cohort100_source": "PINT_with_reversal/cohort/index.csv" if cohort else None,
+        "builder": "scripts/build_grain_viewer.py",
+    }
+    old = json.loads((out / "index.json").read_text()) if (out / "index.json").exists() else None
+    partial = bool(args.only) or set(args.datasets) != set(DATASETS)
+    if "nikolaisen" not in args.datasets and old:  # keep the provenance of the dataset that was not rebuilt
+        provenance = {k: v for k, v in old["provenance"].items() if k != "gergov"}
+    if "gergov" in args.datasets:
+        g_grains, provenance["gergov"] = build_gergov(args, out)
+        grains += g_grains
+    elif old and "gergov" in old["provenance"]:
+        provenance["gergov"] = old["provenance"]["gergov"]
     index = {
         "schema": 1,
         "generated": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
-        "units": "nm; coordinates relative to the raw-STL bounding-box centre in the FIB sample frame",
-        "provenance": {
-            "dataset": "Nikolaisen et al. (2022), silicate-hosted magnetite FIB-SEM STL meshes",
-            "stl2fem_commit": git_head(REPO_ROOT),
-            "inventory_repo_commit": git_head(args.batches.parents[2]),
-            "inventories": inventories,
-            "cohort100_source": "PINT_with_reversal/cohort/index.csv" if cohort else None,
-            "builder": "scripts/build_grain_viewer.py",
-        },
+        "units": "nm; coordinates relative to the raw-STL bounding-box centre in the FIB sample frame "
+                 "(Gergov grains: relative to the mesh bounding-box centre)",
+        "provenance": provenance,
         "grains": grains,
     }
-    if args.only and (out / "index.json").exists():  # partial rebuild: merge
-        old = json.loads((out / "index.json").read_text())
+    if partial and old:  # partial rebuild: merge
         keep = {g["id"]: g for g in old["grains"]}
         keep.update({g["id"]: g for g in grains})
-        index["grains"] = sorted(keep.values(), key=lambda g: (g["host"] != "PLAG", g["id"]))
+        index["grains"] = sorted(keep.values(), key=lambda g: (HOST_ORDER.index(g["host"]), g["id"]))
     (out / "index.json").write_text(json.dumps(index, separators=(",", ":")), encoding="utf-8")
     total = sum(f.stat().st_size for f in out.rglob("*") if f.is_file())
     print(f"wrote {len(index['grains'])} grains, {total / 2**20:.1f} MiB -> {out}")
@@ -436,6 +526,10 @@ def main() -> None:
     p.add_argument("--cohort", type=Path, default=DEFAULT_COHORT, help="PINT_with_reversal cohort/index.csv (optional)")
     p.add_argument("--out", type=Path, default=DEFAULT_OUT)
     p.add_argument("--only", nargs="*", help="rebuild only these grain IDs (merged into an existing index.json)")
+    p.add_argument("--datasets", nargs="+", choices=DATASETS, default=list(DATASETS),
+                   help="datasets to (re)build; the others are kept from an existing index.json")
+    p.add_argument("--gergov-root", type=Path, default=DEFAULT_GERGOV,
+                   help="checkout of branch Gergov2025_stl2msh with data/Gergov2025/merrill_msh converted")
     build(p.parse_args())
 
 

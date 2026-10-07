@@ -83,9 +83,18 @@ function flagsFor(g) {
   return out;
 }
 
+const HOSTS = {
+  PLAG: { label: 'Plagioclase host', study: 'Nikolaisen et al. 2022' },
+  OPX: { label: 'Orthopyroxene host', study: 'Nikolaisen et al. 2022' },
+  HEKLA: { label: 'Hekla 1991 basalt', study: 'Gergov et al. 2025' },
+  VESUVIUS: { label: 'Vesuvius 1944 basalt', study: 'Gergov et al. 2025' },
+};
+const HOST_ORDER = Object.keys(HOSTS);
+
 function notesFor(g) {
   const r = g.raw;
   const out = [];
+  if (!r) return g.raw_note ? [g.raw_note] : [];
   if (!r.closed_manifold) {
     const d = [];
     if (r.boundary_edges) d.push(`${r.boundary_edges} open`);
@@ -238,6 +247,7 @@ function requestRender() { dirty = true; }
 function viewports() {
   const w = canvas.clientWidth;
   const h = canvas.clientHeight;
+  if (state.current && !state.current.raw) return [{ x: 0, w, h, show: ['proc'] }]; // published as a mesh only
   if (state.view === 'split') {
     const half = Math.floor(w / 2);
     return [
@@ -362,7 +372,7 @@ let currentGeos = {};
 
 // Vertex normals are meaningless on non-orientable surfaces, so those raw meshes are always flat.
 function applyShading() {
-  const rawFlat = state.flat || (state.current ? !state.current.raw.closed_manifold : false);
+  const rawFlat = state.flat || (state.current?.raw ? !state.current.raw.closed_manifold : false);
   for (const [m, flat] of [[mats.rawSolid, rawFlat], [mats.rawGhost, rawFlat], [mats.procSolid, state.flat]]) {
     if (m.flatShading !== flat) {
       m.flatShading = flat;
@@ -391,11 +401,12 @@ async function showGrain(id, { resetView = true, push = true } = {}) {
   try {
     const base = 'data/';
     const [raw, proc] = await Promise.all([
-      fetchMesh(base + g.raw.file),
+      g.raw ? fetchMesh(base + g.raw.file) : Promise.resolve(null),
       g.proc ? fetchMesh(base + g.proc.file) : Promise.resolve(null),
     ]);
     if (token !== state.token) return;
     currentGeos = { raw, proc };
+    for (const b of document.querySelectorAll('#views button')) b.disabled = !g.raw && b.dataset.view !== 'proc';
     rebuildGroups(currentGeos);
     applyShading();
     updateLabels();
@@ -413,7 +424,7 @@ function prefetchNeighbours() {
   for (const j of [i + 1, i - 1]) {
     const g = state.list[j];
     if (!g) continue;
-    fetchMesh(`data/${g.raw.file}`).catch(() => {});
+    if (g.raw) fetchMesh(`data/${g.raw.file}`).catch(() => {});
     if (g.proc) fetchMesh(`data/${g.proc.file}`).catch(() => {});
   }
 }
@@ -426,6 +437,11 @@ function step(delta) {
 }
 
 function updateLabels() {
+  if (state.current && !state.current.raw) {
+    $('#label-left').textContent = ''; $('#label-right').textContent = '';
+    $('#legend').innerHTML = `<span><i style="background:var(--proc)"></i>Published mesh (converted for merrill.jl)</span>`;
+    return;
+  }
   const split = state.view === 'split';
   $('#label-left').textContent = split ? VIEW_LABELS.raw : '';
   $('#label-right').textContent = split ? (state.current?.proc ? VIEW_LABELS.proc : 'No processed mesh') : '';
@@ -460,7 +476,7 @@ function applyFilters() {
   const evsd = (g) => g.published.evsd_um ?? 0;
   const dv = (g) => (g.proc ? Math.abs(g.proc.volume_rel_diff_vs_published ?? 0) : Infinity);
   const sorters = {
-    id: (a, b) => (a.host === b.host ? a.id.localeCompare(b.id) : a.host === 'PLAG' ? -1 : 1),
+    id: (a, b) => (a.host === b.host ? a.id.localeCompare(b.id) : HOST_ORDER.indexOf(a.host) - HOST_ORDER.indexOf(b.host)),
     evsd: (a, b) => evsd(a) - evsd(b),
     'evsd-desc': (a, b) => evsd(b) - evsd(a),
     dv: (a, b) => dv(b) - dv(a),
@@ -520,15 +536,16 @@ function renderInfo(g) {
   const rv = state.reviews[g.id] || {};
   const flags = g._flags;
   const prov = state.index.provenance;
+  if (!r) { $('#info').innerHTML = meshOnlyInfo(g, p, pub, flags, rv); bindReview(g); return; }
   const commit = prov.stl2fem_commit;
-  const srcUrl = commit ? `https://github.com/duserzym/stl2fem/blob/${commit}/data/${r.source.split('/').map(encodeURIComponent).join('/')}` : null;
+  const srcUrl = commit ?`https://github.com/duserzym/stl2fem/blob/${commit}/data/${r.source.split('/').map(encodeURIComponent).join('/')}` : null;
   const dims = (e) => (e ? e.map((v) => nf(v)).join(' × ') : '–');
   const pubVol = pub.volume_um3 != null ? pub.volume_um3 * 1e9 : null;
   const row = (label, a, b) => `<tr><th>${label}</th><td>${a}</td><td>${b}</td></tr>`;
 
   $('#info').innerHTML = `<div class="col">
     <section>
-      <div class="head"><b>${g.id}</b><span class="muted">${g.host === 'PLAG' ? 'Plagioclase host' : 'Orthopyroxene host'}</span></div>
+      <div class="head"><b>${g.id}</b><span class="muted">${HOSTS[g.host]?.label ?? g.host}</span></div>
       <div class="chips">
         ${g.cohort100 ? `<span class="chip">100-grain cohort${g.cohort_status ? ` · ${esc(g.cohort_status)}` : ''}</span>` : ''}
         ${p ? `<span class="chip proc">${esc(p.strategy)}</span>` : ''}
@@ -595,11 +612,85 @@ function renderInfo(g) {
       </div>
     </section>
     </div>`;
+  bindReview(g);
+}
 
+function reviewHTML(g, rv) {
+  return `<section class="review">
+      <h3>Review</h3>
+      <div class="seg" role="group" aria-label="Review status">
+        <button data-status="unreviewed" aria-pressed="${!rv.status || rv.status === 'unreviewed'}">Unreviewed</button>
+        <button data-status="ok" aria-pressed="${rv.status === 'ok'}">Accept</button>
+        <button data-status="attention" aria-pressed="${rv.status === 'attention'}">Needs attention</button>
+      </div>
+      <textarea id="note" placeholder="Notes on ${g.id}…">${esc(rv.note || '')}</textarea>
+      <input id="reviewer" type="search" placeholder="Reviewer name (saved in this browser)" value="${esc(storeGet(REVIEWER_KEY, ''))}">
+      <div class="muted" id="saved">${rv.updated ? `Saved ${new Date(rv.updated).toLocaleString()}${rv.reviewer ? ` · ${esc(rv.reviewer)}` : ''}` : 'Notes stay in this browser until exported.'}</div>
+    </section>`;
+}
+
+function bindReview(g) {
   for (const b of document.querySelectorAll('.review .seg button')) b.onclick = () => saveReview(g.id, { status: b.dataset.status });
   let t;
   $('#note').oninput = (e) => { clearTimeout(t); t = setTimeout(() => saveReview(g.id, { note: e.target.value }), 400); };
   $('#reviewer').onchange = (e) => storeSet(REVIEWER_KEY, e.target.value.trim());
+}
+
+// Grains published only as tetrahedral meshes (Gergov et al. 2025): one geometry column, published metrics.
+function meshOnlyInfo(g, p, pub, flags, rv) {
+  const dims = (e) => (e ? e.map((v) => nf(v)).join(' × ') : '–');
+  const branch = 'https://github.com/duserzym/stl2fem/tree/Gergov2025_stl2msh';
+  const gp = state.index.provenance.gergov || {};
+  return `<div class="col">
+    <section>
+      <div class="head"><b>${g.id}</b><span class="muted">${HOSTS[g.host]?.label ?? g.host}</span></div>
+      <div class="chips">
+        <span class="chip proc">${esc(p.strategy)}</span>
+        ${pub.ground_state ? `<span class="chip">ground state ${esc(pub.ground_state)} (published)</span>` : ''}
+      </div>
+    </section>
+    <section>
+      <h3>Checks</h3>
+      <div class="flags">
+        ${flags.length ? flags.map((f) => `<div>${esc(f)}</div>`).join('') : '<div class="none">No mesh flags.</div>'}
+        ${notesFor(g).map((n) => `<div class="note">${esc(n)}</div>`).join('')}
+      </div>
+    </section>
+    <section>
+      <h3>Published (Gergov et al. 2025)</h3>
+      <table class="kv">
+        <tr><th>Volume</th><td>${pub.volume_um3 != null ? pub.volume_um3.toPrecision(4) : '–'} µm³</td></tr>
+        <tr><th>Equivalent sphere diameter</th><td>${pub.evsd_um != null ? nf(pub.evsd_um * 1000, 1) : '–'} nm</td></tr>
+        <tr><th>Flinn ratio</th><td>${pub.flinn_ratio != null ? pub.flinn_ratio.toPrecision(3) : '–'}</td></tr>
+        <tr><th>LEM states</th><td>${esc((pub.lem_states || '–').replace(/;/g, ', '))}</td></tr>
+        <tr><th>Ground state</th><td>${esc(pub.ground_state || '–')}</td></tr>
+      </table>
+    </section>
+    </div><div class="col">
+    <section>
+      <h3>Geometry (merrill.jl mesh)</h3>
+      <table class="kv">
+        <tr><th>Volume</th><td>${um3(p.volume_nm3)} µm³</td></tr>
+        <tr><th>Equivalent diameter</th><td>${nf(evd(p.volume_nm3), 1)} nm</td></tr>
+        <tr><th>ΔV vs published</th><td><b>${pct(p.volume_rel_diff_vs_published)}</b></td></tr>
+        <tr><th>Surface area</th><td>${(p.area_nm2 / 1e6).toPrecision(4)} µm²</td></tr>
+        <tr><th>Nodes / tetrahedra</th><td>${nf(p.n_nodes)} / ${nf(p.n_tets)}</td></tr>
+        <tr><th>Surface triangles</th><td>${nf(p.n_surface_triangles)}</td></tr>
+        <tr><th>Edge median (range)</th><td>${nf(p.tet_edge_nm.median, 1)} nm (${small(p.tet_edge_nm.min)}–${nf(p.tet_edge_nm.max, 1)})</td></tr>
+        <tr><th>Worst element shape</th><td>${p.shape_min != null ? p.shape_min.toFixed(3) : '–'} <span class="muted">(1 = regular)</span></td></tr>
+        <tr><th>Extent</th><td>${dims(p.extent_nm)} nm</td></tr>
+      </table>
+    </section>
+    ${reviewHTML(g, rv)}
+    <section>
+      <h3>Provenance</h3>
+      <div class="prov">
+        <div>Published: ${esc(p.source_pat)} in <a href="https://doi.org/10.5281/zenodo.11369780" target="_blank" rel="noopener">Zenodo 11369780</a><br><span class="mono">sha256 ${short(p.source_pat_sha256)}</span></div>
+        <div>merrill.jl mesh: <a href="${branch}" target="_blank" rel="noopener">${esc(p.source)}</a><br><span class="mono">sha256 ${short(p.sha256)}</span> ${p.sha256_matches_inventory ? '· matches inventory' : '· <b>inventory mismatch</b>'}</div>
+        <div>Displayed coordinates: nm, origin at the mesh bounding-box centre (${g.centre_nm.map((v) => nf(v, 0)).join(', ')} nm in the sample frame).${gp.branch_commit ? ` Built from Gergov2025_stl2msh ${gp.branch_commit.slice(0, 10)}.` : ''}</div>
+      </div>
+    </section>
+    </div>`;
 }
 
 function saveReview(id, patch) {
@@ -629,7 +720,7 @@ function exportCsv() {
   const lines = [head.join(',')];
   for (const g of state.grains) {
     const rv = state.reviews[g.id] || {};
-    lines.push([g.id, g.host, rv.status || 'unreviewed', rv.note || '', rv.reviewer || '', rv.updated || '', g._flags.join(' | '), g.raw.closed_manifold, g.proc?.strategy || '', g.proc?.sha256 || ''].map(csvCell).join(','));
+    lines.push([g.id, g.host, rv.status || 'unreviewed', rv.note || '', rv.reviewer || '', rv.updated || '', g._flags.join(' | '), g.raw ? g.raw.closed_manifold : '', g.proc?.strategy || '', g.proc?.sha256 || ''].map(csvCell).join(','));
   }
   const name = storeGet(REVIEWER_KEY, '').replace(/[^\w-]+/g, '_');
   download(new Blob([`${lines.join('\r\n')}\r\n`], { type: 'text/csv' }), `grain_review${name ? `_${name}` : ''}_${new Date().toISOString().slice(0, 10)}.csv`);

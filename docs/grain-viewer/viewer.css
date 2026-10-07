@@ -343,3 +343,9 @@ dialog p { margin: 0 0 10px; }
   .hint { display: none; }
   .info { max-height: none; padding: 16px; grid-template-columns: minmax(0, 1fr); }
 }
+
+/* five sample filters */
+.filters .seg button { padding: 4px 3px; font-size: 12px; }
+
+.seg button:disabled { opacity: 0.35; cursor: not-allowed; }
+
