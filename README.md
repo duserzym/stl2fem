@@ -9,6 +9,11 @@ dataset, but the core functions are generic STL-to-`.msh` helpers built on
 PyVista/VTK and Gmsh. The converted files can be found in branch [`Nikolaisen2022_stl2msh`](https://github.com/duserzym/stl2fem/tree/Nikolaisen2022_stl2msh). 
 The branch currently only contains the converted .msh files in nm units of all magnetite inclusions in Plag and those in the Opx are not converted yet. 
 
+Branch `Gergov2025_stl2msh` adds the Gergov et al. (2025) Hekla and Vesuvius basalt magnetite meshes. These are 976
+smoothed tetrahedral grains, converted from Patran to merrill.jl-ready Gmsh 2.2 files with
+`scripts/convert_gergov2025.py`. See `reports/Gergov2025/README.md` for details.
+
+- data citation: Gergov, H., Muxworthy, A. R., Williams, W., & Cowan, A. (2025). Magnetic recording fidelity of basalts through 3D nanotomography. Geochemistry, Geophysics, Geosystems. https://doi.org/10.1029/2024GC011776 (data: https://doi.org/10.5281/zenodo.11369780, CC-BY-4.0)
 - data citation: Nikolaisen, E. S., Harrison, R., Fabian, K., Church, N., McEnroe, S. A., Sørensen, B. E., & Tegner, C. (2022). Hysteresis parameters and magnetic anisotropy of silicate-hosted magnetite exsolutions. Geophysical Journal International. https://doi.org/10.1093/gji/ggac007
 
 ## Units
