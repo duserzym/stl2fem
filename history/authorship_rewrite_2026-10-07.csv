@@ -1,0 +1,10 @@
+﻿branch,old_sha,new_sha,subject
+Nikolaisen2022_stl2msh,e8c954f988733ad9eca05c755d52d7f2e951cf6f,550db45b620e225c3dbd1180eb4cc176cb54c9cf,"Add surface_fill: fill the published STL surface with tetrahedra, tried before the voxel fallback"
+Nikolaisen2022_stl2msh,28dd88ddc564b41636e9841b35efa1b7c1fe998d,eeda1c16e281cc1f674559222afe15b5299019ea,"Add scripts/remesh_voxel_fallbacks.py: re-mesh only the voxel-fallback particles with surface_fill, one isolated interpreter per particle, leaving gmsh/MeshFix meshes byte-identical, with a per-particle report of volume against the STL and the output hash"
+Nikolaisen2022_stl2msh,0dc113c44fc2e35fe140ab34a7f70ba968e15f48,310714b26e55b056519c771216c6270ac3564ae8,"Ignore the OPX and surface_fill mesh sets, which are too large for git and are hash-pinned by the campaigns that use them"
+Nikolaisen2022_stl2msh,06efa5ba407b2d86c016578b7bd5b11cd9da113c,0fe62e4d39ad8c8b4ffb24f7559af07627175e8b,"surface_fill: 9 nm resolution matching the Gmsh strategy (surface split above 1.5x target, interior pinned at target); report edge stats"
+Nikolaisen2022_stl2msh,6583861a206977d7b3814d98f227aa18bdf61d7c,892424aafb10c149c9db1c71c680692344d32e13,Ignore the 9 nm surface_fill mesh outputs
+Nikolaisen2022_stl2msh,d22095a89cbbe97fba60018552d98ec3dcd69743,74a6c58c4b62e955630ded23d0fd9978308b4bc5,"surface_fill: remove flat boundary caps, fall back to HXT, refuse meshes that keep a sliver"
+Nikolaisen2022_stl2msh,1e8ed6afd0a67c2c8ea3465e3b1f3361af3b147c,cf38449f6dae77b9f1e4118fb164b9544a2486f3,Ignore the desliver mesh outputs
+Nikolaisen2022_stl2msh,2f7b7c6d5b1876ca3c77ad698943c82bc41eb5a7,fa8c68703dc4eed9667fccbfc3d4288fce1bc7ac,Add a static 3D grain viewer for reviewing published STLs against the FEM meshes
+Gergov2025_stl2msh,b9f027b07209f5a7f51f677d2f00306c9941a3c0,41bbd00282482b705ea879665036688aebb60503,Add the Gergov et al. (2025) Hekla and Vesuvius magnetite meshes as merrill.jl-ready Gmsh 2.2 files
