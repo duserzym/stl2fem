@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Magnetite Grain Viewer</title>
+<meta name="description" content="Review viewer for plagioclase- and orthopyroxene-hosted magnetite grains: published FIB-SEM STL geometry versus the processed tetrahedral meshes used for micromagnetic modeling.">
+<link rel="stylesheet" href="viewer.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3 28 10v12L16 29 4 22V10z' fill='%233a7ca5'/%3E%3Cpath d='M16 3 28 10 16 17 4 10z' fill='%23c8873a'/%3E%3C/svg%3E">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.min.js" } }
+</script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar" aria-label="Grain list">
+    <header class="brand">
+      <h1>Magnetite grain viewer</h1>
+      <p class="sub">FIB-SEM magnetite · published geometry vs. FEM mesh · Nikolaisen 2022, Gergov 2025</p>
+    </header>
+
+    <div class="filters">
+      <div class="seg" role="group" aria-label="Sample">
+        <button data-host="all" aria-pressed="true" title="All grains">All</button>
+        <button data-host="PLAG" aria-pressed="false" title="Nikolaisen et al. 2022, plagioclase-hosted">Plag</button>
+        <button data-host="OPX" aria-pressed="false" title="Nikolaisen et al. 2022, orthopyroxene-hosted">OPX</button>
+        <button data-host="HEKLA" aria-pressed="false" title="Gergov et al. 2025, Hekla 1991 basalt">Hekla</button>
+        <button data-host="VESUVIUS" aria-pressed="false" title="Gergov et al. 2025, Vesuvius 1944 basalt">Ves.</button>
+      </div>
+      <input id="search" type="search" placeholder="Search ID, e.g. PLAG124 or H009" autocomplete="off" spellcheck="false">
+      <div class="row">
+        <label class="check"><input type="checkbox" id="f-cohort"> 100-grain cohort</label>
+        <label class="check"><input type="checkbox" id="f-flagged"> Flagged</label>
+      </div>
+      <div class="row">
+        <select id="f-review" aria-label="Review status filter">
+          <option value="">Any review status</option>
+          <option value="unreviewed">Unreviewed</option>
+          <option value="ok">Accepted</option>
+          <option value="attention">Needs attention</option>
+        </select>
+        <select id="sort" aria-label="Sort">
+          <option value="id">Sort: ID</option>
+          <option value="evsd">Sort: size ↑</option>
+          <option value="evsd-desc">Sort: size ↓</option>
+          <option value="dv">Sort: |ΔV vs pub.| ↓</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="list-head"><span id="count">–</span><span class="muted">EVSD</span></div>
+    <ul class="grain-list" id="list" role="listbox" aria-label="Grains"></ul>
+
+    <footer class="progress" id="progress"></footer>
+  </aside>
+
+  <main class="stage">
+    <div class="toolbar">
+      <button class="icon only-narrow" id="menu" aria-label="Show grain list">☰</button>
+      <div class="nav">
+        <button class="icon" id="prev" aria-label="Previous grain" title="Previous (←)">‹</button>
+        <h2 id="title">Loading…</h2>
+        <button class="icon" id="next" aria-label="Next grain" title="Next (→)">›</button>
+      </div>
+      <div class="seg" role="group" aria-label="View mode" id="views">
+        <button data-view="raw" aria-pressed="false" title="1">Original</button>
+        <button data-view="proc" aria-pressed="false" title="2">Processed</button>
+        <button data-view="overlay" aria-pressed="true" title="3">Overlay</button>
+        <button data-view="split" aria-pressed="false" title="4">Side by side</button>
+      </div>
+      <div class="toggles">
+        <label class="check" title="E"><input type="checkbox" id="t-edges"> Edges</label>
+        <label class="check" title="F"><input type="checkbox" id="t-flat"> Flat</label>
+        <label class="check"><input type="checkbox" id="t-axes" checked> Axes</label>
+        <button class="btn" id="reset" title="R">Reset view</button>
+        <button class="btn" id="shot" title="Save PNG with scale bar">PNG</button>
+        <button class="btn" id="theme" aria-label="Toggle colour theme" title="Theme">◐</button>
+      </div>
+    </div>
+
+    <div class="viewport" id="viewport">
+      <canvas id="canvas" aria-label="3D grain view"></canvas>
+      <div class="vlabel left" id="label-left"></div>
+      <div class="vlabel right" id="label-right"></div>
+      <div class="legend" id="legend"></div>
+      <div class="scalebar" id="scalebar" aria-live="polite"><div class="bar"></div><span></span></div>
+      <div class="status" id="status" hidden></div>
+      <div class="hint">Drag rotate · right-drag pan · wheel zoom · ←/→ grains · 1–4 views</div>
+    </div>
+  </main>
+
+  <aside class="info" id="info" aria-label="Grain details"></aside>
+</div>
+
+<dialog id="about">
+  <form method="dialog">
+    <h3>About this viewer</h3>
+    <p><b>Original</b> is the per-particle STL published by Nikolaisen et al. (2022) (FIB-SEM slice-and-view, 25 nm slices; segmented in FIJI, meshed in ParaView, separated in Meshmixer, solidified with Iso2Mesh). Vertices are welded; geometry is otherwise untouched.</p>
+    <p><b>Processed</b> is the outer boundary of the tetrahedral Gmsh 2.2 mesh used for MERRILL micromagnetic modeling, produced by <code>stl2fem</code> and selected per grain by the downstream mesh inventories (PLAG: 245-grain surface-fill inventory; OPX: 82-grain 9 nm v2 inventory). Edge, tetrahedron and volume statistics use the full volume mesh.</p>
+    <p>Both surfaces are shown in nanometres in the FIB sample frame, translated so that the raw-STL bounding-box centre is the origin; they are therefore registered and directly comparable. The camera is orthographic, so the scale bar is exact anywhere in the view.</p>
+    <p><b>Gergov et al. (2025)</b> Hekla 1991 and Vesuvius 1944 basalt grains (H###, V###; <a href="https://doi.org/10.5281/zenodo.11369780" target="_blank" rel="noopener">Zenodo 11369780</a>, CC-BY-4.0) were published as smoothed CUBIT tetrahedral meshes rather than surface models. stl2fem converts them exactly (µm → m, Patran → Gmsh 2.2) on branch <code>Gergov2025_stl2msh</code>, so for these grains only the mesh surface is shown and it is compared with the published volume.</p>
+    <p><b>Flags</b> (processed mesh, ⚑ in the list): no processed mesh; voxel fallback or refused remesh; processed volume differs from the published volume by more than <span class="dvp"></span>, or from a closed raw STL by more than <span class="dvr"></span>; more than one connected piece; mesh hash differs from its inventory.</p>
+    <p><b>Notes</b> (published input): most PLAG STLs are open, non-manifold and not consistently orientable. Their enclosed volume is undefined, so for those grains the processed mesh is compared with the published volume only, and the raw surface is drawn flat-shaded.</p>
+    <p><b>Review notes</b> are stored only in this browser. Use <i>Export CSV</i> to send them; <i>Import CSV</i> merges a file back.</p>
+    <p class="muted" id="prov"></p>
+    <button class="btn">Close</button>
+  </form>
+</dialog>
+
+<script type="module" src="viewer.js"></script>
+</body>
+</html>
